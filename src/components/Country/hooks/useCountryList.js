@@ -1,8 +1,9 @@
-import { useEffect, useMemo } from 'react';
+import { useCallback, useEffect, useMemo } from 'react';
 import { useDispatch, useSelector } from 'react-redux';
 import {
   getCountryListRequestAction,
-  increaseDisplayCountAction
+  increaseDisplayCountAction,
+  resetDisplayCountAction
 } from '../../../contexts/reducers/country';
 import useThrottle from '../../../hooks/useThrottle';
 
@@ -16,6 +17,9 @@ export default function useCountryList() {
 
   const countries = useMemo(() => {
     if (!searchWord) return data.slice(0, displayCount);
+    if (displayCount !== 50) dispatch(resetDisplayCountAction());
+
+    const lowerSearchWord = searchWord.toLowerCase();
     return data
       .filter(country => {
         const { name, alpha2Code, callingCodes, capital, region } = country;
@@ -27,26 +31,27 @@ export default function useCountryList() {
         ].map(value => value.toLowerCase());
 
         if (
-          lowName.includes(searchWord) ||
-          lowAlpha.includes(searchWord) ||
-          lowCapital.includes(searchWord) ||
-          lowRegion.includes(searchWord)
+          lowName.includes(lowerSearchWord) ||
+          lowAlpha.includes(lowerSearchWord) ||
+          lowCapital.includes(lowerSearchWord) ||
+          lowRegion.includes(lowerSearchWord)
         ) {
           return true;
         }
 
-        if (callingCodes.some(value => value.includes(searchWord))) return true;
+        if (callingCodes.some(value => value.includes(lowerSearchWord)))
+          return true;
         return false;
       })
       .slice(0, displayCount);
   }, [searchWord, data, displayCount]);
 
-  const upDateDisplayCount = () => {
+  const upDateDisplayCount = useCallback(() => {
     const { scrollHeight, scrollTop, clientHeight } = document.documentElement;
     if (scrollTop + clientHeight >= scrollHeight - 50) {
       dispatch(increaseDisplayCountAction());
     }
-  };
+  }, []);
 
   const throttleUpdateDisplayCount = useThrottle(upDateDisplayCount, 250);
 
