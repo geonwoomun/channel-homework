@@ -12,6 +12,7 @@ export const DELETE_COUNTRY = 'DELETE_COUNTY';
 
 export const SORT_COUNTRY = 'SORT_COUNTRY';
 export const INCREASE_DISPLAY_COUNT = 'INCREASE_DISPLAY_COUNT';
+export const RESET_DISPLAY_COUNT = 'RESET_DISPLAY_COUNT';
 
 export const getCountryListRequestAction = () => ({
   type: GET_COUNTRY_LIST
@@ -33,6 +34,10 @@ export const sortCountryAction = ({ key, order }) => ({
     key,
     order
   }
+});
+
+export const resetDisplayCountAction = () => ({
+  type: RESET_DISPLAY_COUNT
 });
 
 export const increaseDisplayCountAction = () => ({
@@ -122,6 +127,12 @@ export default function reducer(state = initialState, action) {
       return {
         ...state,
         displayCount: state.displayCount + action.payload
+      };
+
+    case RESET_DISPLAY_COUNT:
+      return {
+        ...state,
+        displayCount: 50
       };
 
     default:
